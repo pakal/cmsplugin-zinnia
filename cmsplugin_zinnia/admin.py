@@ -27,8 +27,9 @@ class EntryPlaceholderAdmin(PlaceholderAdminMixin, EntryAdmin):
         try:
             content = render_placeholder(entry.content_placeholder, request)
             entry.content = content or ''
-        except KeyError:
+        except (KeyError, AttributeError):
             # https://github.com/django-blog-zinnia/cmsplugin-zinnia/pull/61
+            # "entry.placeholder" might also be None at this moment, thus failing
             entry.content = ''
         super(EntryPlaceholderAdmin, self).save_model(
             request, entry, form, change)

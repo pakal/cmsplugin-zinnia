@@ -6,6 +6,7 @@ from django.template.context import RequestContext
 
 from cms.models.fields import PlaceholderField
 from cms.plugin_rendering import ContentRenderer
+from cms.toolbar.utils import get_toolbar_from_request
 
 from zinnia.models_bases.entry import AbstractEntry
 
@@ -14,10 +15,15 @@ def render_placeholder(placeholder, request):
     """
     See http://docs.django-cms.org/en/develop/upgrade/3.4.html#manual-plugin-rendering
     """
-    renderer = ContentRenderer(request)
+    # Beware, ContentRenderer(request) is not enough to get editing menus
+    toolbar = get_toolbar_from_request(request)
+    renderer = toolbar.get_content_renderer()
     context = RequestContext(request)
     context['request'] = request
-    content = renderer.render_placeholder(placeholder, context=context)
+    content = renderer.render_placeholder(
+        placeholder=placeholder, 
+        context=context,
+        editable=True)
     return content
 
 
